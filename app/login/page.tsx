@@ -1,57 +1,39 @@
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+'use client';
 
-export default async function Home() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+import { createClient } from '@/lib/supabase/client';
 
-  const logout = async () => {
-    'use server';
-    const supabase = await createClient();
-    await supabase.auth.signOut();
+export default function LoginPage() {
+  const supabase = createClient();
+
+  const loginGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
   };
 
   return (
-    <main style={{ padding: 32, fontFamily: 'system-ui', maxWidth: 640, margin: '0 auto' }}>
-      <h1>🛒 Toko Gua</h1>
-
-      {user ? (
-        <div style={{
-          marginTop: 24,
-          padding: 20,
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
+    <main style={{
+      minHeight: '100vh', display: 'flex',
+      alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'system-ui', padding: 20,
+    }}>
+      <div style={{
+        maxWidth: 400, width: '100%', textAlign: 'center',
+        padding: 32, border: '1px solid #e5e7eb', borderRadius: 16,
+      }}>
+        <h1 style={{ marginBottom: 8 }}>🛒 Toko Gua</h1>
+        <p style={{ color: '#6b7280', marginBottom: 24 }}>Masuk untuk mulai belanja</p>
+        <button onClick={loginGoogle} style={{
+          width: '100%', padding: '12px 20px', fontSize: 16, fontWeight: 600,
+          border: '1px solid #d1d5db', borderRadius: 10, background: '#fff',
+          cursor: 'pointer',
         }}>
-          <p style={{ margin: 0 }}>Login sebagai:</p>
-          <p style={{ fontWeight: 600, marginTop: 4 }}>{user.email}</p>
-          <form action={logout} style={{ marginTop: 12 }}>
-            <button type="submit" style={{
-              padding: '8px 16px',
-              background: '#ef4444',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-            }}>
-              Logout
-            </button>
-          </form>
-        </div>
-      ) : (
-        <div style={{ marginTop: 24 }}>
-          <p>Kamu belum login.</p>
-          <Link href="/login" style={{
-            display: 'inline-block',
-            padding: '10px 20px',
-            background: '#2563eb',
-            color: '#fff',
-            textDecoration: 'none',
-            borderRadius: 8,
-          }}>
-            Masuk
-          </Link>
-        </div>
-      )}
+          Masuk dengan Google
+        </button>
+      </div>
     </main>
   );
 }
